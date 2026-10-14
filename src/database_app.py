@@ -59,6 +59,8 @@ def create_app(test_config=None):
     register_report_template_routes(app)
     from src.tat import register_tat_routes
     register_tat_routes(app)
+    from src.audit_history import register_audit_history_routes
+    register_audit_history_routes(app)
     from src.tenancy import register_tenant_commands
     register_tenant_commands(app)
     register_commands(app)

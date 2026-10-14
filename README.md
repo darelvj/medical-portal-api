@@ -90,6 +90,7 @@ Passwords are stored as hashes. The JWT is returned only as an HttpOnly cookie; 
 | PUT | `/api/admin/users/<user_id>` | Admin | Update account, role, or active state |
 | GET | `/api/admin/roles` | Admin | List roles and permissions |
 | PUT | `/api/patients/<patient_id>` | `patients.write` | Update patient demographics and contact data |
+| GET | `/api/admin/audit-events` | Admin | Paginated, tenant-scoped study assignment/report/TAT audit timeline |
 
 The seeded admin account is `admin@example.test` with the development password `demo-password`. Change or remove seeded demo credentials before using this service outside local development. User creation requires a password of at least eight characters. The API prevents deactivating or demoting the last active administrator.
 
@@ -114,6 +115,8 @@ An administrator assigns an eligible radiologist, QA user, and signer from the s
 Radiologists also have a **My worklist** page. `GET /api/reporting/worklist` returns only the signed-in radiologist's tenant-owned primary assignments or second-opinion requests. It supports `role=primary|review`, `stage`, `modality`, `search`, `sort=oldest|newest`, `page`, and `per_page` (up to 50). The default active view omits signed and cancelled primary studies and shows pending second opinions. The worklist links directly to the report editor for editable, performed studies. No new database migration is needed for the worklist.
 
 Radiologists, second reviewers, QA users, and signers see only studies assigned to them in patient search, patient details, the scan calendar, and dashboard counts. Other roles retain their existing visibility. This is a local training workflow, not a clinical reporting system.
+
+Tenant admins can inspect **Audit history** for assignment, report workflow, and TAT changes. `GET /api/admin/audit-events` accepts `category=all|assignment|report|tat`, `search`, `page`, and `per_page` (up to 50). Results are ordered newest first and include actor, study, patient, timestamp, and a safe operational summary. It does not expose free-text reports or raw audit metadata. This is a read-only view over existing audit events; no migration is needed. The demo audit log is not tamper-evident or a production compliance solution.
 
 ## TAT and MIS
 

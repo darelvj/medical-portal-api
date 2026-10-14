@@ -25,12 +25,14 @@ def sign_in(client, email):
 
 def test_assignment_visibility_and_full_report_workflow(portal):
     with portal.app_context():
-        scan = Scan.query.filter_by(status="Pending Review", report_status="Unassigned").first()
-        assert scan is not None
-        scan_id, patient_id, uid = scan.id, scan.patient_id, scan.study_uid
         radiologists = User.query.join(User.roles).filter(Role.name == "radiologist").order_by(User.name).all()
         primary_id, reviewer_id = radiologists[0].id, radiologists[1].id
         primary_email, reviewer_email = radiologists[0].email, radiologists[1].email
+        scan = next((candidate for candidate in Scan.query.filter_by(status="Pending Review", report_status="Unassigned").all()
+                     if not any(primary_id in (other.reporting_clinician_id, other.reviewer_id, other.qa_user_id, other.signer_id)
+                                for other in candidate.patient.scans)), None)
+        assert scan is not None
+        scan_id, patient_id, uid = scan.id, scan.patient_id, scan.study_uid
         qa = User.query.join(User.roles).filter(Role.name == "qa").first()
         signer = User.query.join(User.roles).filter(Role.name == "signer").first()
         qa_id, signer_id = qa.id, signer.id
